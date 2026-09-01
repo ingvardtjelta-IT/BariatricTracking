@@ -514,7 +514,7 @@ function morePage(){
     </div>
 
     <div class="note">
-      <strong>Prototype 0.1.4</strong><br>
+      <strong>Prototype 0.1.5</strong><br>
       Data lagres bare lokalt i nettleseren. Ingen konto,
       sky, AI eller kobling mot helsevesenet.
     </div>
@@ -524,8 +524,19 @@ function morePage(){
 function slotEditor(m){
   return `
   <div class="slot">
-    <input value="${attr(m.name)}" onchange="updateSlot('${m.id}','name',this.value)">
-    <input type="time" value="${m.time}" onchange="updateSlot('${m.id}','time',this.value)">
+    <input
+      value="${attr(m.name)}"
+      onchange="updateSlot('${m.id}','name',this.value)"
+    >
+
+    <input
+      type="time"
+      value="${m.time}"
+      data-original-time="${m.time}"
+      onkeydown="handleTimeKey(event,'${m.id}',this)"
+      onblur="commitTime('${m.id}',this)"
+    >
+
     <button class="deleteIcon" onclick="deleteSlot('${m.id}')">🗑</button>
   </div>`;
 }
@@ -964,15 +975,49 @@ function deactivateHobbitMode(){
   render();
 }
 
+function handleTimeKey(event,id,input){
+  if(event.key==="Enter"){
+    event.preventDefault();
+    commitTime(id,input);
+    input.blur();
+  }
+
+  if(event.key==="Escape"){
+    event.preventDefault();
+    input.value=input.dataset.originalTime || "";
+    input.blur();
+  }
+}
+
+function commitTime(id,input){
+  const value=input.value;
+
+  // Ikke lagre et halvferdig eller ugyldig klokkeslett.
+  if(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(value)){
+    input.value=input.dataset.originalTime || "";
+    return;
+  }
+
+  if(value===input.dataset.originalTime){
+    return;
+  }
+
+  const m=state.meals.find(x=>x.id===id);
+  if(!m)return;
+
+  m.time=value;
+  input.dataset.originalTime=value;
+
+  sortMealsByTime();
+  save();
+  render();
+}
+
 function updateSlot(id,key,value){
   const m=state.meals.find(x=>x.id===id);
   if(!m)return;
 
   m[key]=value;
-
-  if(key==="time"){
-    sortMealsByTime();
-  }
 
   save();
   render();
