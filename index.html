@@ -468,8 +468,8 @@ function morePage(){
       <div id="slots">${state.meals.map(slotEditor).join("")}</div>
       <button class="secondary addSlot" onclick="newSlot()">+ Nytt måltid</button>
       <button class="hobbit" onclick="hobbit()">
-        + Andre frokost
-        <small>Hobbit-modus</small>
+        🧙 Aktiver Hobbit-modus
+        <small>Breakfast · Second Breakfast · Elevenses · Luncheon · Afternoon Tea · Dinner · Supper</small>
       </button>
     </div>
 
@@ -499,7 +499,7 @@ function morePage(){
     </div>
 
     <div class="note">
-      <strong>Prototype 0.1.1</strong><br>
+      <strong>Prototype 0.1.2</strong><br>
       Data lagres bare lokalt i nettleseren. Ingen konto,
       sky, AI eller kobling mot helsevesenet.
     </div>
@@ -833,13 +833,31 @@ function newSlot(){
 }
 
 function hobbit(){
-  if(state.meals.some(m=>m.name.toLowerCase()==="andre frokost"))return;
+  const hobbitMeals=[
+    {id:"breakfast",name:"Breakfast",time:"07:30"},
+    {id:"second-breakfast",name:"Second Breakfast",time:"09:30"},
+    {id:"elevenses",name:"Elevenses",time:"11:00"},
+    {id:"luncheon",name:"Luncheon",time:"13:00"},
+    {id:"afternoon-tea",name:"Afternoon Tea",time:"15:30"},
+    {id:"dinner",name:"Dinner",time:"18:00"},
+    {id:"supper",name:"Supper",time:"21:00"}
+  ];
 
-  state.meals.splice(1,0,{
-    id:uid(),
-    name:"Andre frokost",
-    time:"10:00"
-  });
+  // Flytt eksisterende loggposter til nærmeste tilsvarende Hobbit-måltid
+  // slik at mat du allerede har registrert fortsatt vises.
+  const slotMap={
+    breakfast:"breakfast",
+    lunch:"luncheon",
+    dinner:"dinner",
+    evening:"supper"
+  };
+
+  state.entries=state.entries.map(e=>({
+    ...e,
+    slot:slotMap[e.slot] || e.slot
+  }));
+
+  state.meals=hobbitMeals;
 
   save();
   render();
