@@ -189,7 +189,8 @@ const defaults={
     waterGoal:1500,
     proteinGoal:80,
     calorieGoal:1600,
-    showCalories:true
+    showCalories:true,
+    hobbitMode:false
   }
 };
 
@@ -219,6 +220,16 @@ function load(){
 
 function save(){
   localStorage.setItem(KEY,JSON.stringify(state));
+}
+
+function sortMealsByTime(){
+  state.meals.sort((a,b)=>{
+    const byTime=(a.time||"").localeCompare(b.time||"");
+    if(byTime!==0) return byTime;
+
+    // Stabil sekundærsortering dersom to måltider har samme klokkeslett.
+    return state.meals.indexOf(a)-state.meals.indexOf(b);
+  });
 }
 
 function dateObj(s){ return new Date(s+"T12:00:00"); }
@@ -467,9 +478,13 @@ function morePage(){
       <h2>Måltidsrytme</h2>
       <div id="slots">${state.meals.map(slotEditor).join("")}</div>
       <button class="secondary addSlot" onclick="newSlot()">+ Nytt måltid</button>
-      <button class="hobbit" onclick="hobbit()">
-        🧙 Aktiver Hobbit-modus
-        <small>Breakfast · Second Breakfast · Elevenses · Luncheon · Afternoon Tea · Dinner · Supper</small>
+      <button class="hobbit" onclick="toggleHobbitMode()">
+        ${state.settings.hobbitMode ? "↩ Deaktiver Hobbit-modus" : "🧙 Aktiver Hobbit-modus"}
+        <small>
+          ${state.settings.hobbitMode
+            ? "Går tilbake til Frokost · Lunsj · Middag · Kveldsmat + Mellommåltider"
+            : "Breakfast · Second Breakfast · Elevenses · Luncheon · Afternoon Tea · Dinner · Supper"}
+        </small>
       </button>
     </div>
 
@@ -499,7 +514,7 @@ function morePage(){
     </div>
 
     <div class="note">
-      <strong>Prototype 0.1.2</strong><br>
+      <strong>Prototype 0.1.4</strong><br>
       Data lagres bare lokalt i nettleseren. Ingen konto,
       sky, AI eller kobling mot helsevesenet.
     </div>
@@ -827,12 +842,28 @@ function newSlot(){
   if(!name)return;
 
   state.meals.push({id:uid(),name,time:"10:00"});
+  sortMealsByTime();
 
   save();
   render();
 }
 
-function hobbit(){
+function toggleHobbitMode(){
+  if(state.settings.hobbitMode){
+    deactivateHobbitMode();
+  }else{
+    activateHobbitMode();
+  }
+}
+
+function activateHobbitMode(){
+  const normalStandardIds=new Set(["breakfast","lunch","dinner","evening"]);
+
+  // Behold eventuelle egendefinerte måltider som allerede finnes.
+  const customMeals=state.meals
+    .filter(m=>!normalStandardIds.has(m.id))
+    .map(m=>({...m}));
+
   const hobbitMeals=[
     {id:"breakfast",name:"Breakfast",time:"07:30"},
     {id:"second-breakfast",name:"Second Breakfast",time:"09:30"},
@@ -843,8 +874,7 @@ function hobbit(){
     {id:"supper",name:"Supper",time:"21:00"}
   ];
 
-  // Flytt eksisterende loggposter til nærmeste tilsvarende Hobbit-måltid
-  // slik at mat du allerede har registrert fortsatt vises.
+  // Flytt eksisterende loggposter fra normal standard til Hobbit-standard.
   const slotMap={
     breakfast:"breakfast",
     lunch:"luncheon",
@@ -857,8 +887,79 @@ function hobbit(){
     slot:slotMap[e.slot] || e.slot
   }));
 
-  state.meals=hobbitMeals;
+  // Unngå duplikate ID-er dersom en gammel tilpasset slot kolliderer.
+  const hobbitIds=new Set(hobbitMeals.map(m=>m.id));
+  const safeCustomMeals=customMeals.filter(m=>!hobbitIds.has(m.id));
 
+  state.meals=[...hobbitMeals,...safeCustomMeals];
+  state.settings.hobbitMode=true;
+
+  sortMealsByTime();
+  save();
+  render();
+}
+
+function deactivateHobbitMode(){
+  const hobbitStandardIds=new Set([
+    "breakfast",
+    "second-breakfast",
+    "elevenses",
+    "luncheon",
+    "afternoon-tea",
+    "dinner",
+    "supper"
+  ]);
+
+  const normalMeals=[
+    {id:"breakfast",name:"Frokost",time:"08:00"},
+    {id:"lunch",name:"Lunsj",time:"12:00"},
+    {id:"dinner",name:"Middag",time:"16:30"},
+    {id:"evening",name:"Kveldsmat",time:"20:00"}
+  ];
+
+  // Hobbit-måltider utenom de fire hovedmåltidene blir vanlige mellommåltider.
+  const builtInExtras=state.meals.filter(m=>
+    ["second-breakfast","elevenses","afternoon-tea"].includes(m.id)
+  );
+
+  // Egendefinerte måltider som ble lagt til av brukeren beholdes også.
+  const customExtras=state.meals.filter(m=>!hobbitStandardIds.has(m.id));
+
+  const extras=[...builtInExtras,...customExtras]
+    .sort((a,b)=>(a.time||"").localeCompare(b.time||""))
+    .map((m,index)=>({
+      ...m,
+      name:`Mellommåltid ${index+1}`
+    }));
+
+  // Flytt logger fra Hobbit-hovedmåltidene tilbake til normal standard.
+  const slotMap={
+    breakfast:"breakfast",
+    luncheon:"lunch",
+    dinner:"dinner",
+    supper:"evening"
+  };
+
+  state.entries=state.entries.map(e=>({
+    ...e,
+    slot:slotMap[e.slot] || e.slot
+  }));
+
+  // Bruk tidene fra Hobbit-oppsettet der det er naturlig å bevare brukerens rytme.
+  const currentBreakfast=state.meals.find(m=>m.id==="breakfast");
+  const currentLuncheon=state.meals.find(m=>m.id==="luncheon");
+  const currentDinner=state.meals.find(m=>m.id==="dinner");
+  const currentSupper=state.meals.find(m=>m.id==="supper");
+
+  if(currentBreakfast) normalMeals[0].time=currentBreakfast.time;
+  if(currentLuncheon) normalMeals[1].time=currentLuncheon.time;
+  if(currentDinner) normalMeals[2].time=currentDinner.time;
+  if(currentSupper) normalMeals[3].time=currentSupper.time;
+
+  state.meals=[...normalMeals,...extras];
+  state.settings.hobbitMode=false;
+
+  sortMealsByTime();
   save();
   render();
 }
@@ -868,6 +969,10 @@ function updateSlot(id,key,value){
   if(!m)return;
 
   m[key]=value;
+
+  if(key==="time"){
+    sortMealsByTime();
+  }
 
   save();
   render();
