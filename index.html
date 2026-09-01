@@ -1,0 +1,1769 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f7f3">
+<title>Min Reise</title>
+
+<style>
+:root{
+  --bg:#f6f7f3;
+  --card:#fff;
+  --text:#20241f;
+  --muted:#737970;
+  --line:#e3e7df;
+  --accent:#4d705b;
+  --accentDark:#34513f;
+  --accentSoft:#e4eee7;
+  --danger:#a3544b;
+  --shadow:0 12px 35px rgba(25,35,28,.06);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  color:inherit;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#app{
+  max-width:720px;
+  margin:auto;
+  min-height:100vh;
+}
+
+main{
+  padding:22px 17px 105px;
+}
+
+h1{
+  margin:0;
+  font-size:36px;
+  letter-spacing:-1.6px;
+}
+
+h2{
+  margin:0;
+  font-size:21px;
+}
+
+.smalltitle{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.14em;
+  color:var(--accent);
+  margin-bottom:6px;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.top{
+  padding-top:env(safe-area-inset-top);
+  margin-bottom:20px;
+}
+
+.datebar{
+  display:grid;
+  grid-template-columns:45px 1fr 45px;
+  align-items:center;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+}
+
+.datebar button{
+  height:46px;
+  border:0;
+  background:transparent;
+}
+
+.datecenter{
+  text-align:center;
+}
+
+.datecenter strong{
+  display:block;
+}
+
+.datecenter span{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:27px;
+}
+
+.summary.two{
+  grid-template-columns:repeat(2,1fr);
+}
+
+.stat{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px 7px;
+  text-align:center;
+}
+
+.stat strong{
+  display:block;
+  font-size:19px;
+}
+
+.stat span{
+  display:block;
+  margin-top:3px;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.progress{
+  height:5px;
+  background:#e8ebe5;
+  border-radius:99px;
+  overflow:hidden;
+  margin:9px 5px 0;
+}
+
+.progress div{
+  height:100%;
+  background:var(--accent);
+  border-radius:99px;
+}
+
+.section{
+  margin-top:27px;
+}
+
+.sectionHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:11px;
+}
+
+.badge{
+  background:#ecefe9;
+  border-radius:99px;
+  padding:5px 9px;
+  font-size:11px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:21px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.meal{
+  width:100%;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:white;
+  display:flex;
+  align-items:center;
+  padding:13px 14px;
+  min-height:70px;
+  gap:12px;
+  text-align:left;
+}
+
+.meal:last-child{
+  border-bottom:0;
+}
+
+.meal:active{
+  background:#fafbf8;
+}
+
+.tick{
+  width:29px;
+  height:29px;
+  min-width:29px;
+  border:1.5px solid #cbd0c8;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:bold;
+}
+
+.tick.done{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+
+.mealbody{
+  flex:1;
+}
+
+.mealname{
+  display:flex;
+  justify-content:space-between;
+}
+
+.mealname span{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.mealinfo{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.chevron{
+  color:#aaa;
+  font-size:25px;
+}
+
+.water{
+  background:var(--accentSoft);
+  border-radius:21px;
+  padding:16px;
+}
+
+.waterTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:13px;
+}
+
+.waterTop strong{
+  font-size:21px;
+}
+
+.waterTop span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.waterButtons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+
+.waterButtons button{
+  height:44px;
+  background:rgba(255,255,255,.75);
+  border:1px solid rgba(50,80,60,.17);
+  border-radius:13px;
+  color:var(--accentDark);
+  font-weight:750;
+}
+
+.nav{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:0;
+  width:min(720px,100%);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:rgba(250,251,248,.94);
+  backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);
+  padding:6px 6px calc(7px + env(safe-area-inset-bottom));
+  z-index:20;
+}
+
+.nav button{
+  border:0;
+  background:transparent;
+  height:57px;
+  color:#858b82;
+  font-size:11px;
+}
+
+.nav button.active{
+  color:var(--accentDark);
+  font-weight:800;
+}
+
+.navIcon{
+  display:block;
+  font-size:21px;
+  margin-bottom:2px;
+}
+
+.pageIntro{
+  padding-top:env(safe-area-inset-top);
+  margin-bottom:22px;
+}
+
+.pageIntro p{
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.macro{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  background:var(--line);
+  gap:1px;
+  margin-bottom:18px;
+}
+
+.macro div{
+  background:white;
+  text-align:center;
+  padding:13px 5px;
+}
+
+.macro span{
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.macro strong{
+  font-size:13px;
+}
+
+.primary,.secondary,.danger{
+  border-radius:13px;
+  min-height:45px;
+  padding:0 14px;
+  font-weight:750;
+}
+
+.primary{
+  border:1px solid var(--accent);
+  color:white;
+  background:var(--accent);
+}
+
+.secondary{
+  border:1px solid var(--line);
+  background:white;
+}
+
+.danger{
+  border:1px solid #ead9d6;
+  background:#fffafa;
+  color:var(--danger);
+}
+
+.settings{
+  padding:17px;
+  margin-top:14px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:21px;
+}
+
+.settings h2{
+  margin-bottom:15px;
+}
+
+.settingLabel{
+  display:flex;
+  justify-content:space-between;
+  margin-top:15px;
+  font-size:13px;
+  font-weight:700;
+}
+
+input[type=range]{
+  width:100%;
+  accent-color:var(--accent);
+}
+
+.toggleRow{
+  border-top:1px solid var(--line);
+  margin-top:18px;
+  padding-top:17px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.toggleRow span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.switch{
+  width:48px;
+  height:29px;
+  padding:3px;
+  border:0;
+  border-radius:99px;
+  background:#d6dbd4;
+}
+
+.switch i{
+  display:block;
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  background:white;
+  transition:.2s;
+}
+
+.switch.on{
+  background:var(--accent);
+}
+
+.switch.on i{
+  transform:translateX(19px);
+}
+
+.slot{
+  display:grid;
+  grid-template-columns:1fr 96px 34px;
+  gap:7px;
+  margin-bottom:7px;
+}
+
+.slot input{
+  width:100%;
+  min-width:0;
+  height:40px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:8px;
+  background:#fff;
+}
+
+.deleteIcon{
+  border:0;
+  background:transparent;
+  color:var(--danger);
+}
+
+.addSlot{
+  width:100%;
+  margin-top:9px;
+}
+
+.hobbit{
+  width:100%;
+  border:1px dashed #bfb69e;
+  background:#fbf8ef;
+  border-radius:13px;
+  padding:10px;
+  margin-top:9px;
+  font-weight:750;
+}
+
+.hobbit small{
+  display:block;
+  color:#83785d;
+}
+
+.weightHero{
+  background:var(--accent);
+  color:white;
+  padding:20px;
+  border-radius:22px;
+  margin-bottom:15px;
+}
+
+.weightHero span{
+  opacity:.72;
+  font-size:12px;
+}
+
+.weightHero strong{
+  display:block;
+  font-size:40px;
+  margin-top:5px;
+}
+
+.history{
+  margin-top:15px;
+}
+
+.historyRow{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-top:1px solid var(--line);
+}
+
+.modalBack{
+  position:fixed;
+  z-index:100;
+  inset:0;
+  background:rgba(20,25,20,.35);
+  display:flex;
+  align-items:flex-end;
+  backdrop-filter:blur(3px);
+}
+
+.modal{
+  width:min(720px,100%);
+  margin:auto;
+  background:var(--bg);
+  border-radius:27px 27px 0 0;
+  max-height:91vh;
+  overflow:auto;
+  padding:8px 17px calc(23px + env(safe-area-inset-bottom));
+}
+
+.handle{
+  width:42px;
+  height:5px;
+  border-radius:99px;
+  background:#d4d8d1;
+  margin:3px auto 14px;
+}
+
+.modalHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.close{
+  border:0;
+  background:transparent;
+  color:var(--accent);
+  font-weight:700;
+}
+
+.mealSummary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin:13px 0;
+}
+
+.mealSummary div{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:10px;
+}
+
+.mealSummary span{
+  display:block;
+  font-size:9px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.mealSummary strong{
+  font-size:12px;
+}
+
+.modalBtns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.foodList{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+  overflow:hidden;
+  margin-top:12px;
+}
+
+.foodRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:13px;
+  border-bottom:1px solid var(--line);
+}
+
+.foodRow:last-child{
+  border-bottom:0;
+}
+
+.foodRow span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+.foodActions button{
+  border:0;
+  background:transparent;
+  font-size:17px;
+}
+
+.empty{
+  padding:30px 15px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.form{
+  background:white;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  margin-top:13px;
+}
+
+.form label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.form input{
+  display:block;
+  width:100%;
+  height:42px;
+  margin-top:5px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:8px 10px;
+}
+
+.formGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 8px;
+}
+
+.formButtons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:7px;
+}
+
+.backupBtns{
+  display:grid;
+  gap:8px;
+}
+
+.note{
+  background:#efecdf;
+  padding:16px;
+  border-radius:19px;
+  margin-top:14px;
+  color:#625f53;
+  line-height:1.5;
+  font-size:12px;
+}
+
+@media(max-width:420px){
+  .summary{gap:6px}
+  .stat{padding-left:4px;padding-right:4px}
+  .stat strong{font-size:16px}
+  .macro{grid-template-columns:repeat(2,1fr)}
+  .modalBtns{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div id="app"></div>
+
+<script>
+const KEY="min-reise-v01";
+
+const defaults={
+  date:today(),
+  meals:[
+    {id:"breakfast",name:"Frokost",time:"08:00"},
+    {id:"lunch",name:"Lunsj",time:"12:00"},
+    {id:"dinner",name:"Middag",time:"16:30"},
+    {id:"evening",name:"Kveldsmat",time:"20:00"}
+  ],
+  entries:[],
+  water:[],
+  weights:[],
+  settings:{
+    waterGoal:1500,
+    proteinGoal:80,
+    calorieGoal:1600,
+    showCalories:true
+  }
+};
+
+let state=load();
+let tab="today";
+let openMeal=null;
+
+function uid(){
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
+
+function today(){
+  const d=new Date();
+  d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  return d.toISOString().slice(0,10);
+}
+
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY));
+    return s ? {...defaults,...s,settings:{...defaults.settings,...s.settings}} :
+      structuredClone(defaults);
+  }catch{
+    return structuredClone(defaults);
+  }
+}
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+
+function dateObj(s){
+  return new Date(s+"T12:00:00");
+}
+
+function shiftDate(n){
+  let d=dateObj(state.date);
+  d.setDate(d.getDate()+n);
+  d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  state.date=d.toISOString().slice(0,10);
+  render();
+}
+
+function dateText(s){
+  return new Intl.DateTimeFormat("nb-NO",{
+    weekday:"long",
+    day:"numeric",
+    month:"long"
+  }).format(dateObj(s));
+}
+
+function shortDate(s){
+  return new Intl.DateTimeFormat("nb-NO",{
+    day:"numeric",
+    month:"short"
+  }).format(dateObj(s));
+}
+
+function entry(slot){
+  return state.entries.find(e=>e.date===state.date && e.slot===slot);
+}
+
+function foodCalc(f){
+  let m=f.grams/100;
+  return {
+    kcal:f.kcal*m,
+    protein:f.protein*m,
+    carbs:f.carbs*m,
+    fat:f.fat*m
+  };
+}
+
+function mealCalc(e){
+  let t={kcal:0,protein:0,carbs:0,fat:0};
+  if(!e)return t;
+
+  e.foods.forEach(f=>{
+    let n=foodCalc(f);
+    Object.keys(t).forEach(k=>t[k]+=n[k]);
+  });
+
+  return t;
+}
+
+function dayCalc(){
+  let t={kcal:0,protein:0,carbs:0,fat:0};
+
+  state.entries
+    .filter(e=>e.date===state.date)
+    .forEach(e=>{
+      let m=mealCalc(e);
+      Object.keys(t).forEach(k=>t[k]+=m[k]);
+    });
+
+  return t;
+}
+
+function waterTotal(){
+  return state.water
+    .filter(w=>w.date===state.date)
+    .reduce((a,b)=>a+b.ml,0);
+}
+
+function pct(v,max){
+  return Math.min(100,Math.round(v/max*100)||0);
+}
+
+function nav(){
+  return `
+  <nav class="nav">
+    ${navButton("today","⌂","I dag")}
+    ${navButton("food","🍴","Mat")}
+    ${navButton("weight","⌁","Utvikling")}
+    ${navButton("more","•••","Mer")}
+  </nav>`;
+}
+
+function navButton(id,icon,label){
+  return `
+  <button class="${tab===id?"active":""}" onclick="setTab('${id}')">
+    <span class="navIcon">${icon}</span>${label}
+  </button>`;
+}
+
+function setTab(t){
+  tab=t;
+  render();
+}
+
+function summary(){
+  const d=dayCalc();
+  const w=waterTotal();
+  const s=state.settings;
+
+  return `
+  <div class="summary ${s.showCalories?"":"two"}">
+
+    ${stat(
+      Math.round(d.protein)+" g",
+      "av "+s.proteinGoal+" g protein",
+      pct(d.protein,s.proteinGoal)
+    )}
+
+    ${stat(
+      w+" ml",
+      "av "+s.waterGoal+" ml væske",
+      pct(w,s.waterGoal)
+    )}
+
+    ${s.showCalories?stat(
+      Math.round(d.kcal),
+      "av "+s.calorieGoal+" kcal",
+      pct(d.kcal,s.calorieGoal)
+    ):""}
+
+  </div>`;
+}
+
+function stat(a,b,p){
+  return `
+  <div class="stat">
+    <strong>${a}</strong>
+    <span>${b}</span>
+    <div class="progress"><div style="width:${p}%"></div></div>
+  </div>`;
+}
+
+function todayPage(){
+  const done=state.meals.filter(m=>entry(m.id)?.foods.length).length;
+
+  return `
+  <main>
+
+    <div class="top">
+      <div class="smalltitle">MIN REISE</div>
+      <h1>Hei 👋</h1>
+    </div>
+
+    <div class="datebar">
+      <button onclick="shiftDate(-1)">‹</button>
+
+      <button class="datecenter" onclick="goToday()">
+        <strong>${state.date===today()?"I dag":dateText(state.date)}</strong>
+        <span>${state.date===today()?dateText(state.date):"Trykk for i dag"}</span>
+      </button>
+
+      <button onclick="shiftDate(1)">›</button>
+    </div>
+
+    ${summary()}
+
+    <section class="section">
+
+      <div class="sectionHead">
+        <div>
+          <div class="smalltitle">DAGENS RYTME</div>
+          <h2>Måltider</h2>
+        </div>
+
+        <div class="badge">${done}/${state.meals.length}</div>
+      </div>
+
+      <div class="card">
+        ${state.meals.map(mealRow).join("")}
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="sectionHead">
+        <div>
+          <div class="smalltitle">VÆSKE</div>
+          <h2>Drikke i dag</h2>
+        </div>
+
+        <button class="close" onclick="undoWater()">Angre siste</button>
+      </div>
+
+      <div class="water">
+        <div class="waterTop">
+          <div>
+            <strong>${waterTotal()} ml</strong>
+            <span>${Math.max(0,state.settings.waterGoal-waterTotal())} ml igjen</span>
+          </div>
+          <div style="font-size:27px">💧</div>
+        </div>
+
+        <div class="waterButtons">
+          <button onclick="addWater(100)">+ 100 ml</button>
+          <button onclick="addWater(200)">+ 200 ml</button>
+          <button onclick="addWater(300)">+ 300 ml</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>`;
+}
+
+function mealRow(m){
+  const e=entry(m.id);
+  const n=mealCalc(e);
+  const done=e?.foods.length;
+
+  return `
+  <button class="meal" onclick="showMeal('${m.id}')">
+
+    <div class="tick ${done?"done":""}">
+      ${done?"✓":""}
+    </div>
+
+    <div class="mealbody">
+
+      <div class="mealname">
+        <strong>${esc(m.name)}</strong>
+        <span>${m.time}</span>
+      </div>
+
+      <div class="mealinfo">
+        ${
+          done
+          ? `${Math.round(n.protein)} g protein${
+              state.settings.showCalories
+                ?" · "+Math.round(n.kcal)+" kcal"
+                :""
+            }`
+          :"Ikke registrert"
+        }
+      </div>
+
+    </div>
+
+    <div class="chevron">›</div>
+
+  </button>`;
+}
+
+function foodPage(){
+  let d=dayCalc();
+
+  return `
+  <main>
+
+    <div class="pageIntro">
+      <div class="smalltitle">MATLOGG</div>
+      <h1>${dateText(state.date)}</h1>
+      <p>Registrert mat og næringsinnhold for dagen.</p>
+    </div>
+
+    <div class="macro">
+      ${macro("Energi",Math.round(d.kcal)+" kcal")}
+      ${macro("Protein",Math.round(d.protein)+" g")}
+      ${macro("Karbo",Math.round(d.carbs)+" g")}
+      ${macro("Fett",Math.round(d.fat)+" g")}
+    </div>
+
+    <div class="card">
+      ${state.meals.map(mealRow).join("")}
+    </div>
+
+  </main>`;
+}
+
+function macro(name,value){
+  return `<div><span>${name}</span><strong>${value}</strong></div>`;
+}
+
+function weightPage(){
+  const ws=[...state.weights].sort((a,b)=>b.date.localeCompare(a.date));
+  const last=ws[0];
+
+  return `
+  <main>
+
+    <div class="pageIntro">
+      <div class="smalltitle">UTVIKLING</div>
+      <h1>Vekt</h1>
+      <p>En enkel historikk foreløpig.</p>
+
+      <button class="primary" onclick="weightModal()">
+        + Registrer vekt
+      </button>
+    </div>
+
+    <div class="weightHero">
+      <span>Siste registrering</span>
+      <strong>${last?last.kg.toFixed(1)+" kg":"–"}</strong>
+    </div>
+
+    <div class="settings history">
+
+      <h2>Historikk</h2>
+
+      ${
+        ws.length
+        ? ws.map(w=>`
+          <div class="historyRow">
+            <span>${shortDate(w.date)}</span>
+            <strong>${w.kg.toFixed(1)} kg</strong>
+          </div>
+        `).join("")
+        : `<div class="empty">Ingen målinger ennå.</div>`
+      }
+
+    </div>
+
+  </main>`;
+}
+
+function morePage(){
+  return `
+  <main>
+
+    <div class="pageIntro">
+      <div class="smalltitle">TILPASS</div>
+      <h1>Din app</h1>
+      <p>
+        Måltidsrytmen og målene bestemmer du selv.
+      </p>
+    </div>
+
+    <div class="settings">
+
+      <h2>Måltidsrytme</h2>
+
+      <div id="slots">
+        ${state.meals.map(slotEditor).join("")}
+      </div>
+
+      <button class="secondary addSlot" onclick="newSlot()">
+        + Nytt måltid
+      </button>
+
+      <button class="hobbit" onclick="hobbit()">
+        + Andre frokost
+        <small>Hobbit-modus</small>
+      </button>
+
+    </div>
+
+    <div class="settings">
+
+      <h2>Dagsmål</h2>
+
+      ${range(
+        "Væske",
+        "waterGoal",
+        500,
+        4000,
+        100,
+        state.settings.waterGoal,
+        " ml"
+      )}
+
+      ${range(
+        "Protein",
+        "proteinGoal",
+        20,
+        200,
+        5,
+        state.settings.proteinGoal,
+        " g"
+      )}
+
+      ${range(
+        "Energi",
+        "calorieGoal",
+        400,
+        3500,
+        50,
+        state.settings.calorieGoal,
+        " kcal"
+      )}
+
+      <div class="toggleRow">
+
+        <div>
+          <strong>Vis kalorier</strong>
+          <span>Data beholdes selv om visningen skjules.</span>
+        </div>
+
+        <button
+          class="switch ${state.settings.showCalories?"on":""}"
+          onclick="toggleCalories()"
+        >
+          <i></i>
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="settings">
+
+      <h2>Data</h2>
+
+      <div class="backupBtns">
+        <button class="secondary" onclick="exportData()">
+          Eksporter backup
+        </button>
+
+        <button class="secondary" onclick="document.getElementById('importFile').click()">
+          Importer backup
+        </button>
+
+        <input
+          hidden
+          id="importFile"
+          type="file"
+          accept=".json,application/json"
+          onchange="importData(this.files[0])"
+        >
+
+        <button class="danger" onclick="resetApp()">
+          Nullstill alle lokale data
+        </button>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <strong>Prototype 0.1</strong><br>
+      Data lagres bare lokalt i nettleseren. Ingen konto,
+      sky, AI eller kobling mot helsevesenet.
+    </div>
+
+  </main>`;
+}
+
+function slotEditor(m){
+  return `
+  <div class="slot">
+
+    <input
+      value="${attr(m.name)}"
+      onchange="updateSlot('${m.id}','name',this.value)"
+    >
+
+    <input
+      type="time"
+      value="${m.time}"
+      onchange="updateSlot('${m.id}','time',this.value)"
+    >
+
+    <button
+      class="deleteIcon"
+      onclick="deleteSlot('${m.id}')"
+    >
+      🗑
+    </button>
+
+  </div>`;
+}
+
+function range(label,key,min,max,step,value,suffix){
+  return `
+  <label class="settingLabel">
+    ${label}
+    <span>${value}${suffix}</span>
+  </label>
+
+  <input
+    type="range"
+    min="${min}"
+    max="${max}"
+    step="${step}"
+    value="${value}"
+    oninput="changeSetting('${key}',this.value)"
+  >`;
+}
+
+function render(){
+  let body;
+
+  if(tab==="today") body=todayPage();
+  if(tab==="food") body=foodPage();
+  if(tab==="weight") body=weightPage();
+  if(tab==="more") body=morePage();
+
+  document.getElementById("app").innerHTML=body+nav();
+
+  if(openMeal) renderMealModal();
+}
+
+function showMeal(id){
+  openMeal=id;
+  render();
+}
+
+function closeModal(){
+  openMeal=null;
+  document.querySelector(".modalBack")?.remove();
+}
+
+function renderMealModal(){
+  const slot=state.meals.find(m=>m.id===openMeal);
+  if(!slot)return;
+
+  const e=entry(slot.id);
+  const n=mealCalc(e);
+
+  const html=`
+  <div class="modalBack" onclick="backdrop(event)">
+
+    <div class="modal">
+
+      <div class="handle"></div>
+
+      <div class="modalHead">
+        <h2>${esc(slot.name)}</h2>
+        <button class="close" onclick="closeModal()">Lukk</button>
+      </div>
+
+      <div class="mealSummary">
+        <div>
+          <span>Tid</span>
+          <strong>${slot.time}</strong>
+        </div>
+
+        <div>
+          <span>Protein</span>
+          <strong>${Math.round(n.protein)} g</strong>
+        </div>
+
+        <div>
+          <span>Energi</span>
+          <strong>${Math.round(n.kcal)} kcal</strong>
+        </div>
+      </div>
+
+      <div class="modalBtns">
+
+        <button class="primary" onclick="foodForm()">
+          + Legg til mat
+        </button>
+
+        <button class="secondary" onclick="copyPrevious('${slot.id}')">
+          Kopier siste ${esc(slot.name.toLowerCase())}
+        </button>
+
+      </div>
+
+      <div class="foodList">
+
+        ${
+          e?.foods.length
+          ? e.foods.map(f=>foodRow(e,f)).join("")
+          : `
+          <div class="empty">
+            <strong>Tomt måltid</strong><br><br>
+            Legg til mat, eller kopier forrige måltid.
+          </div>`
+        }
+
+      </div>
+
+      <div id="foodForm"></div>
+
+    </div>
+
+  </div>`;
+
+  document.body.insertAdjacentHTML("beforeend",html);
+}
+
+function foodRow(e,f){
+  const n=foodCalc(f);
+
+  return `
+  <div class="foodRow">
+
+    <div>
+      <strong>${esc(f.name)}</strong>
+      <span>
+        ${f.grams} g ·
+        ${Math.round(n.protein)} g protein ·
+        ${Math.round(n.kcal)} kcal
+      </span>
+    </div>
+
+    <div class="foodActions">
+
+      <button onclick="editFood('${e.id}','${f.id}')">
+        ✎
+      </button>
+
+      <button onclick="deleteFood('${e.id}','${f.id}')">
+        🗑
+      </button>
+
+    </div>
+
+  </div>`;
+}
+
+function backdrop(e){
+  if(e.target.classList.contains("modalBack")){
+    closeModal();
+  }
+}
+
+function ensureEntry(slot){
+  let e=entry(slot);
+
+  if(!e){
+    e={
+      id:uid(),
+      date:state.date,
+      slot,
+      foods:[]
+    };
+
+    state.entries.push(e);
+  }
+
+  return e;
+}
+
+function foodForm(existing=null){
+  const target=document.getElementById("foodForm");
+  if(!target)return;
+
+  target.innerHTML=`
+  <form class="form" onsubmit="saveFoodForm(event,'${existing?.id||""}')">
+
+    <label>
+      Matvare
+      <input
+        autofocus
+        id="foodName"
+        value="${attr(existing?.name||"")}"
+        placeholder="f.eks. Skyr vanilje"
+      >
+    </label>
+
+    <div class="formGrid">
+
+      <label>
+        Mengde (g)
+        <input
+          inputmode="decimal"
+          id="foodGrams"
+          value="${existing?.grams||100}"
+        >
+      </label>
+
+      <label>
+        kcal / 100 g
+        <input
+          inputmode="decimal"
+          id="foodKcal"
+          value="${existing?.kcal??""}"
+        >
+      </label>
+
+      <label>
+        Protein / 100 g
+        <input
+          inputmode="decimal"
+          id="foodProtein"
+          value="${existing?.protein??""}"
+        >
+      </label>
+
+      <label>
+        Karbo / 100 g
+        <input
+          inputmode="decimal"
+          id="foodCarbs"
+          value="${existing?.carbs??""}"
+        >
+      </label>
+
+      <label>
+        Fett / 100 g
+        <input
+          inputmode="decimal"
+          id="foodFat"
+          value="${existing?.fat??""}"
+        >
+      </label>
+
+    </div>
+
+    <div class="formButtons">
+
+      <button
+        type="button"
+        class="secondary"
+        onclick="document.getElementById('foodForm').innerHTML=''"
+      >
+        Avbryt
+      </button>
+
+      <button class="primary">
+        Lagre
+      </button>
+
+    </div>
+
+  </form>`;
+}
+
+function num(id){
+  return Number(
+    document.getElementById(id)
+      .value
+      .replace(",",".")
+  )||0;
+}
+
+function saveFoodForm(ev,id){
+  ev.preventDefault();
+
+  const e=ensureEntry(openMeal);
+
+  const f={
+    id:id||uid(),
+    name:document.getElementById("foodName").value.trim(),
+    grams:num("foodGrams"),
+    kcal:num("foodKcal"),
+    protein:num("foodProtein"),
+    carbs:num("foodCarbs"),
+    fat:num("foodFat")
+  };
+
+  if(!f.name)return;
+
+  if(id){
+    e.foods=e.foods.map(x=>x.id===id?f:x);
+  }else{
+    e.foods.push(f);
+  }
+
+  save();
+
+  document.querySelector(".modalBack")?.remove();
+  render();
+}
+
+function editFood(entryId,foodId){
+  const e=state.entries.find(x=>x.id===entryId);
+  const f=e?.foods.find(x=>x.id===foodId);
+
+  if(f)foodForm(f);
+}
+
+function deleteFood(entryId,foodId){
+  const e=state.entries.find(x=>x.id===entryId);
+
+  if(!e)return;
+
+  e.foods=e.foods.filter(f=>f.id!==foodId);
+
+  save();
+
+  document.querySelector(".modalBack")?.remove();
+  render();
+}
+
+function copyPrevious(slot){
+  const previous=state.entries
+    .filter(e=>
+      e.slot===slot &&
+      e.date<state.date &&
+      e.foods.length
+    )
+    .sort((a,b)=>b.date.localeCompare(a.date))[0];
+
+  if(!previous){
+    alert("Fant ikke et tidligere måltid å kopiere.");
+    return;
+  }
+
+  const target=ensureEntry(slot);
+
+  target.foods=previous.foods.map(f=>({
+    ...f,
+    id:uid()
+  }));
+
+  save();
+
+  document.querySelector(".modalBack")?.remove();
+  render();
+}
+
+function addWater(ml){
+  state.water.push({
+    id:uid(),
+    date:state.date,
+    ml
+  });
+
+  save();
+  render();
+}
+
+function undoWater(){
+  const items=state.water.filter(w=>w.date===state.date);
+
+  if(!items.length)return;
+
+  const last=items[items.length-1];
+
+  state.water=state.water.filter(w=>w.id!==last.id);
+
+  save();
+  render();
+}
+
+function goToday(){
+  state.date=today();
+  render();
+}
+
+function weightModal(){
+  document.body.insertAdjacentHTML("beforeend",`
+  <div class="modalBack" onclick="backdrop(event)">
+
+    <div class="modal">
+
+      <div class="handle"></div>
+
+      <div class="modalHead">
+        <h2>Registrer vekt</h2>
+        <button class="close" onclick="this.closest('.modalBack').remove()">Lukk</button>
+      </div>
+
+      <form class="form" onsubmit="saveWeight(event)">
+
+        <label>
+          Vekt i kg
+          <input
+            autofocus
+            id="weightValue"
+            inputmode="decimal"
+            placeholder="0,0"
+          >
+        </label>
+
+        <button class="primary" style="width:100%">
+          Lagre
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>`);
+}
+
+function saveWeight(e){
+  e.preventDefault();
+
+  const kg=Number(
+    document.getElementById("weightValue")
+      .value
+      .replace(",",".")
+  );
+
+  if(!kg)return;
+
+  const existing=state.weights.find(w=>w.date===state.date);
+
+  if(existing){
+    existing.kg=kg;
+  }else{
+    state.weights.push({
+      id:uid(),
+      date:state.date,
+      kg
+    });
+  }
+
+  save();
+
+  document.querySelector(".modalBack")?.remove();
+
+  render();
+}
+
+function newSlot(){
+  const name=prompt("Navn på måltidet:");
+
+  if(!name)return;
+
+  state.meals.push({
+    id:uid(),
+    name,
+    time:"10:00"
+  });
+
+  save();
+  render();
+}
+
+function hobbit(){
+  if(
+    state.meals.some(
+      m=>m.name.toLowerCase()==="andre frokost"
+    )
+  )return;
+
+  state.meals.splice(1,0,{
+    id:uid(),
+    name:"Andre frokost",
+    time:"10:00"
+  });
+
+  save();
+  render();
+}
+
+function updateSlot(id,key,value){
+  const m=state.meals.find(x=>x.id===id);
+  if(!m)return;
+
+  m[key]=value;
+
+  save();
+  render();
+}
+
+function deleteSlot(id){
+  if(!confirm("Slette denne måltidstypen?"))return;
+
+  state.meals=state.meals.filter(m=>m.id!==id);
+
+  save();
+  render();
+}
+
+function changeSetting(key,value){
+  state.settings[key]=Number(value);
+
+  save();
+  render();
+}
+
+function toggleCalories(){
+  state.settings.showCalories=!state.settings.showCalories;
+  save();
+  render();
+}
+
+function exportData(){
+  const blob=new Blob(
+    [JSON.stringify(state,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="min-reise-backup-"+today()+".json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importData(file){
+  if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+
+      if(!data.meals || !data.settings)
+        throw new Error();
+
+      state=data;
+      save();
+      render();
+
+      alert("Backup importert.");
+    }catch{
+      alert("Kunne ikke lese backupfilen.");
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function resetApp(){
+  if(!confirm(
+    "Dette sletter alle lokale data. Er du sikker?"
+  ))return;
+
+  state=structuredClone(defaults);
+  save();
+  render();
+}
+
+function esc(s=""){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function attr(s=""){
+  return esc(s).replaceAll('"',"&quot;");
+}
+
+render();
+</script>
+
+</body>
+</html>
