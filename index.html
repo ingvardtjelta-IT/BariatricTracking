@@ -514,7 +514,7 @@ function morePage(){
     </div>
 
     <div class="note">
-      <strong>Prototype 0.1.5</strong><br>
+      <strong>Prototype 0.1.6</strong><br>
       Data lagres bare lokalt i nettleseren. Ingen konto,
       sky, AI eller kobling mot helsevesenet.
     </div>
@@ -533,7 +533,8 @@ function slotEditor(m){
       type="time"
       value="${m.time}"
       data-original-time="${m.time}"
-      onkeydown="handleTimeKey(event,'${m.id}',this)"
+      onkeydown="handleTimeKeyDown(event,this)"
+      onkeyup="handleTimeKeyUp(event,'${m.id}',this)"
       onblur="commitTime('${m.id}',this)"
     >
 
@@ -975,17 +976,24 @@ function deactivateHobbitMode(){
   render();
 }
 
-function handleTimeKey(event,id,input){
-  if(event.key==="Enter"){
-    event.preventDefault();
-    commitTime(id,input);
-    input.blur();
-  }
-
+function handleTimeKeyDown(event,input){
   if(event.key==="Escape"){
     event.preventDefault();
     input.value=input.dataset.originalTime || "";
     input.blur();
+  }
+}
+
+function handleTimeKeyUp(event,id,input){
+  if(event.key==="Enter"){
+    event.preventDefault();
+
+    // På type="time" er den ferdige verdien først pålitelig etter keyup.
+    // Et lite hopp til neste event-loop lar nettleseren fullføre segmentredigeringen.
+    setTimeout(()=>{
+      commitTime(id,input);
+      input.blur();
+    },0);
   }
 }
 
